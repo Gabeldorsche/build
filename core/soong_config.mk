@@ -63,6 +63,8 @@ $(call add_json_bool, Eng,                               $(filter eng,$(TARGET_B
 $(call add_json_str,  BuildType,                         $(TARGET_BUILD_TYPE))
 
 $(call add_json_str,  DeviceName,                        $(TARGET_DEVICE))
+$(call add_json_str,  PixysDeviceName,                 $(TARGET_DEVICE))
+
 $(call add_json_str,  DeviceProduct,                     $(TARGET_PRODUCT))
 $(call add_json_str,  DeviceArch,                        $(TARGET_ARCH))
 $(call add_json_str,  DeviceArchVariant,                 $(TARGET_ARCH_VARIANT))
@@ -350,6 +352,7 @@ $(call add_json_list, SystemPropFiles, $(TARGET_SYSTEM_PROP))
 $(call add_json_list, SystemExtPropFiles, $(TARGET_SYSTEM_EXT_PROP))
 $(call add_json_list, ProductPropFiles, $(TARGET_PRODUCT_PROP))
 $(call add_json_list, OdmPropFiles, $(TARGET_ODM_PROP))
+$(call add_json_list, PixysDevice, $(TARGET_DEVICE))
 
 # Do not set ArtTargetIncludeDebugBuild into any value if PRODUCT_ART_TARGET_INCLUDE_DEBUG_BUILD is not set,
 # to have the same behavior from runtime_libart.mk.
