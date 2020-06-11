@@ -1192,7 +1192,23 @@ endif # BOARD_PREBUILT_DTBOIMAGE_16KB
 ramdisk_intermediates :=$= $(call intermediates-dir-for,PACKAGING,ramdisk)
 $(eval $(call write-partition-file-list,$(ramdisk_intermediates)/file_list.txt,$(TARGET_RAMDISK_OUT),$(INTERNAL_RAMDISK_FILES)))
 
+ifeq ($(BOARD_RAMDISK_USE_LZ4),true)
+# -l enables the legacy format used by the Linux kernel
+COMPRESSION_COMMAND_DEPS := $(LZ4)
+COMPRESSION_COMMAND := $(LZ4) -l -12 --favor-decSpeed
+RAMDISK_EXT := .lz4
+else ifeq ($(BOARD_RAMDISK_USE_XZ),true)
+COMPRESSION_COMMAND_DEPS := $(XZ)
+COMPRESSION_COMMAND := $(XZ) -f -c --check=crc32 --lzma2=dict=32MiB
+RAMDISK_EXT := .xz
+else
+COMPRESSION_COMMAND_DEPS := $(GZIP)
+COMPRESSION_COMMAND := $(GZIP)
+RAMDISK_EXT := .gz
+endif
+
 # The value of RAMDISK_NODE_LIST is defined in system/core/rootdir/Android.bp.
+
 # This file contains /dev nodes description added to the generic ramdisk
 
 # We just build this directly to the install location.
@@ -2641,7 +2657,7 @@ endif
 
 ifeq (,$(filter true, $(BOARD_USES_FULL_RECOVERY_IMAGE) $(BOARD_USES_RECOVERY_AS_BOOT) \
   $(BOARD_INCLUDE_RECOVERY_DTBO) $(BOARD_INCLUDE_RECOVERY_ACPIO) \
-  $(BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT) $(BOARD_RAMDISK_USE_LZ4)))
+  $(BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT) $(BOARD_RAMDISK_USE_LZ4) $(BOARD_RAMDISK_USE_XZ)))
 # Named '.dat' so we don't attempt to use imgdiff for patching it.
 RECOVERY_RESOURCE_ZIP := $(TARGET_OUT_VENDOR)/etc/recovery-resource.dat
 ALL_DEFAULT_INSTALLED_MODULES += $(RECOVERY_RESOURCE_ZIP)
@@ -3587,7 +3603,7 @@ ifneq ($(INSTALLED_BOOTIMAGE_TARGET),)
 ifneq ($(INSTALLED_RECOVERYIMAGE_TARGET),)
 ifneq ($(BOARD_USES_FULL_RECOVERY_IMAGE),true)
 ifneq (,$(filter true,$(BOARD_INCLUDE_RECOVERY_DTBO) $(BOARD_INCLUDE_RECOVERY_ACPIO) \
-      $(BOARD_RAMDISK_USE_LZ4)))
+      $(BOARD_RAMDISK_USE_LZ4) $(BOARD_RAMDISK_USE_XZ)))
 diff_tool := $(HOST_OUT_EXECUTABLES)/bsdiff
 else
 diff_tool := $(HOST_OUT_EXECUTABLES)/imgdiff
@@ -5918,6 +5934,9 @@ ifneq ($(INSTALLED_INIT_BOOT_IMAGE_TARGET),)
 endif
 ifeq ($(BOARD_RAMDISK_USE_LZ4),true)
 	echo "lz4_ramdisks=true" >> $@
+endif
+ifeq ($(BOARD_RAMDISK_USE_XZ),true)
+	echo "xz_ramdisks=true" >> $@
 endif
 ifneq ($(INSTALLED_VENDOR_BOOTIMAGE_TARGET),)
 	echo "vendor_boot=true" >> $@
