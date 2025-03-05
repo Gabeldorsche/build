@@ -453,14 +453,11 @@ endif
 # See envsetup.mk for a description of SCAN_EXCLUDE_DIRS
 FIND_LEAVES_EXCLUDES := $(addprefix --prune=, $(SCAN_EXCLUDE_DIRS) .repo .git)
 
-<<<<<<< HEAD
-=======
 -include vendor/extra/BoardConfigExtra.mk
 ifneq ($(PIXYS_BUILD),)
 include vendor/pixys/config/BoardConfigPixys.mk
 endif
 
->>>>>>> 1dfec86c3b (build: Add Pixys build support)
 # The build system exposes several variables for where to find the kernel
 # headers:
 #   TARGET_DEVICE_KERNEL_HEADERS is automatically created for the current
